@@ -1,0 +1,8 @@
+[Activity]
+name = Math Games
+activity_version = 1
+bundle_id = org.sugarlabs.mathgames
+exec = sugar-activity3 MathGamesActivity.MathGamesActivity
+icon = activity-mathgames
+license = MIT
+activity_name = Math Games
