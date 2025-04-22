@@ -46,7 +46,7 @@ class MathGamesActivity(activity.Activity):
         # Fun emoji row above the grid
         emoji_row = Gtk.Label()
         emoji_row.set_markup(
-            "<span font='28'>🎲 🧩 🧮 🗺️ 📐 ✨ 🎉</span>"
+            "<span font='28'>🎲 🧩 🧮 🗺️ 📐 ✨ 🥷🏻</span>"
         )
         main_vbox.pack_start(emoji_row, False, False, 0)
 
@@ -59,10 +59,12 @@ class MathGamesActivity(activity.Activity):
         game_grid.set_valign(Gtk.Align.CENTER)
 
         game_list = [
-            ("🗺️ Four Color Map", "games/four_color_map.py"),
+            ("💣 Math Minesweeper", "games/math_minesweeper.py"),
             ("🧮 Broken Calculator", "games/broken_calculator.py"),
             ("🧩 Fifteen Puzzle", "games/fifteen_puzzle.py"),
             ("📐 Euclid's Game", "games/euclids_game.py"),
+            ("🎲 Odd Scoring" , "games/OddScoring.py"),
+            ("🥷🏻 Number Ninja  ", "games/number_ninja.py"),
         ]
 
         # Place buttons in a 2x2 grid
