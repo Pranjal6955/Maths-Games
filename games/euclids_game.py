@@ -138,53 +138,89 @@ class EuclidsGameActivity(sugar3.activity.activity.Activity):
         css_provider = Gtk.CssProvider()
         css = """
         #euclid-game-window {
-            background-image: linear-gradient(135deg, #f8fafc 0%, #e3f0ff 100%);
+            background-image: linear-gradient(135deg, #1a2a3a 0%, #203040 100%);
             border-radius: 18px;
-            box-shadow: 0 6px 24px 0 rgba(60, 60, 120, 0.18);
+            box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.3);
             padding: 12px;
-            color: #000;
+            color: #f0f0f0;
         }
         .stat-frame {
             padding: 5px 0px 0px 0px;
             border-radius: 12px;
+            background-color: rgba(40, 50, 60, 0.3);
+            margin: 5px;
         }
         .stat-frame > * > * {
-            background: linear-gradient(90deg, #f9f9f9 60%, #e3f0ff 100%);
+            background: linear-gradient(90deg, #2a3a4a 0%, #304050 100%);
             border-radius: 12px;
-            padding: 8px 0 8px 0;
-            color: #000;
+            padding: 12px 0 12px 0;
+            color: #e0e0e0;
+            font-weight: bold;
         }
         .header-label {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             margin-bottom: 10px;
             font-family: 'Sans', serif;
-            color: #000;
+            color: #f0f0f0;
         }
         .number-button {
-            font-size: 18px;
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            background: linear-gradient(90deg, #f9f9f9 60%, #e3f0ff 100%);
+            font-size: 24px;
+            padding: 18px;
+            margin: 8px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            border: none;
+            box-shadow: 0 3px 10px rgba(255, 87, 34, 0.3);
+            color: #fff;
+            font-weight: bold;
         }
         .number-button:hover {
-            background: linear-gradient(90deg, #e3f0ff 60%, #d1e3ff 100%);
+            background: linear-gradient(135deg, #ff5722 0%, #ff9800 100%);
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.5);
         }
-        .number-button.selected {
-            background: linear-gradient(90deg, #4dabf7 60%, #3793dd 100%);
-            color: white;
+        .number-button.selected, .number-button.first-selected, .number-button.second-selected {
+            background: linear-gradient(135deg, #03a9f4 0%, #0288d1 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 16px rgba(3, 169, 244, 0.5);
         }
         .game-status {
-            font-size: 16px;
+            font-size: 20px;
             font-weight: bold;
-            color: #6a1b9a;
-            background: linear-gradient(90deg, #fff8e1 60%, #f3e5f5 100%);
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px dashed #ba68c8;
-            box-shadow: 0 2px 8px rgba(186,104,200,0.08);
-            margin: 5px;
+            color: #fff;
+            background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+            padding: 14px 18px;
+            border-radius: 18px;
+            border: none;
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+            margin: 12px;
+        }
+        .selection-button {
+            font-size: 18px;
+            padding: 12px;
+            margin: 6px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #607d8b 0%, #455a64 100%);
+            border: none;
+            box-shadow: 0 2px 8px rgba(96, 125, 139, 0.3);
+            color: #fff;
+        }
+        .selection-button:hover {
+            background: linear-gradient(135deg, #455a64 0%, #607d8b 100%);
+        }
+        .suggested-action {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(46, 125, 50, 0.3);
+        }
+        .suggested-action:hover {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.5);
         }
         """
         css_provider.load_from_data(css.encode())

@@ -17,6 +17,7 @@ class FifteenPuzzleApp(Gtk.Window):
         self.move_count = 0
         self.start_time = time.time()
         self.elapsed_time = 0
+        self.timer_running = False  # Add this line to track timer status
         self.math_mode = True
         self.math_operations = {}
         self.last_moved_tile = None
@@ -209,6 +210,13 @@ class FifteenPuzzleApp(Gtk.Window):
         }
         * {
             font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+            color: #000000;
+        }
+        label, button {
+            color: black;
+        }
+        frame > label {
+            color: black;
         }
         frame {
             padding: 12px 0px 0px 0px;
@@ -222,6 +230,7 @@ class FifteenPuzzleApp(Gtk.Window):
         .stat-label {
             font-size: 22px;
             font-weight: bold;
+            color: black;
         }
         .tile-button {
             font-size: 26px;
@@ -397,6 +406,7 @@ class FifteenPuzzleApp(Gtk.Window):
         self.moves_label.set_text("0")
         self.start_time = time.time()
         self.elapsed_time = 0
+        self.timer_running = False  # Reset timer state on new game
         self.update_timer()
         self.solved = False
         
@@ -642,6 +652,12 @@ class FifteenPuzzleApp(Gtk.Window):
         # Check if this tile can move
         if ((x == empty_x and abs(y - empty_y) == 1) or 
             (y == empty_y and abs(x - empty_x) == 1)):
+            
+            # Start the timer on the first move if it's not already running
+            if not self.timer_running:
+                self.timer_running = True
+                self.start_time = time.time() - self.elapsed_time  # Account for any displayed time
+            
             self.move_tile(x, y)
     
     def on_mode_toggled(self, button):
@@ -704,7 +720,7 @@ class FifteenPuzzleApp(Gtk.Window):
     
     def update_timer(self):
         """Update the timer display"""
-        if not self.solved:
+        if not self.solved and self.timer_running:
             self.elapsed_time = time.time() - self.start_time
             
         mins = int(self.elapsed_time // 60)

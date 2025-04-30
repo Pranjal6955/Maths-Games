@@ -272,7 +272,7 @@ class MathMinesweeperGame(Gtk.Window):
         
         # Game title
         title_label = Gtk.Label()
-        title_label.set_markup("<span size='x-large' weight='bold'>Math Minesweeper</span>")
+        title_label.set_markup("<span size='x-large' weight='bold' foreground='#1b5e20'>Math Minesweeper</span>")
         main_box.pack_start(title_label, False, False, 10)
         
         # Instructions
@@ -298,49 +298,54 @@ class MathMinesweeperGame(Gtk.Window):
         """Set up CSS for styling the game"""
         css_provider = Gtk.CssProvider()
         css = """
+        window {
+            background: linear-gradient(135deg, #f6f8fa 0%, #e9f2ff 100%);
+            color: #000000;
+        }
+        
         .tile-button {
-            background-color: #3498db;
-            color: white;
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: #000000;
             font-weight: bold;
-            font-size: 18px;
-            border-radius: 8px;
-            min-width: 60px;
-            min-height: 60px;
+            font-size: 20px;
+            border-radius: 12px;
         }
         
         .tile-button:hover {
             background-color: #2980b9;
+            color: #000000;
         }
         
         .tile-button:insensitive {
             background-color: #ecf0f1;
-            color: #2c3e50;
+            color: #000000;
             font-size: 24px;
         }
         
         .correct-tile {
             background-color: #2ecc71;
-            color: white;
+            color: #000000;
         }
         
         .wrong-tile {
             background-color: #e74c3c;
-            color: white;
+            color: #000000;
         }
         
         .header-label {
             font-size: 16px;
             font-weight: bold;
+            color: #1b5e20;
         }
         
         .score-value {
-            color: #2980b9;
+            color: #000000;
             font-weight: bold;
             font-size: 18px;
         }
         
         .lives-value {
-            color: #e74c3c;
+            color: #000000;
             font-weight: bold;
             font-size: 18px;
         }
