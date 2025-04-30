@@ -23,11 +23,48 @@ class Number:
         self.y = y
         self.speed = speed
         self.size = 30  # Default, will be overridden on game start
-        self.color = (0.1, 0.1, 0.1)  # Dark gray
+        
+        # Generate a unique color based on the value
+        hue = (value * 20) % 360 / 360  # Use value to create different hues
+        self.color = self._hsv_to_rgb(hue, 0.7, 0.9)
+        
         self.alive = True
+        self.pulse = 0  # For animation
+        self.pulse_direction = 1
+    
+    def _hsv_to_rgb(self, h, s, v):
+        if s == 0:
+            return v, v, v
+        
+        i = int(h * 6)
+        f = h * 6 - i
+        p = v * (1 - s)
+        q = v * (1 - f * s)
+        t = v * (1 - (1 - f) * s)
+        
+        if i % 6 == 0:
+            return v, t, p
+        elif i % 6 == 1:
+            return q, v, p
+        elif i % 6 == 2:
+            return p, v, t
+        elif i % 6 == 3:
+            return p, q, v
+        elif i % 6 == 4:
+            return t, p, v
+        else:
+            return v, p, q
         
     def move(self):
         self.x += self.speed
+        # Add a pulsating animation
+        self.pulse += 0.1 * self.pulse_direction
+        if self.pulse > 1:
+            self.pulse = 1
+            self.pulse_direction = -1
+        elif self.pulse < 0:
+            self.pulse = 0
+            self.pulse_direction = 1
         
     def is_clicked(self, click_x, click_y):
         # Check if the click is inside the number
@@ -35,15 +72,36 @@ class Number:
         return distance < self.size / 2
         
     def draw(self, context):
-        # Draw a circle
-        context.set_source_rgb(0.8, 0.8, 0.8)  # Light gray background
-        context.arc(self.x, self.y, self.size / 2, 0, 2 * math.pi)
+        # Calculate size with pulse effect
+        pulse_size = self.size * (1 + self.pulse * 0.1)
+        
+        # Draw a glow effect
+        gradient = cairo.RadialGradient(self.x, self.y, 0, self.x, self.y, pulse_size)
+        r, g, b = self.color
+        gradient.add_color_stop_rgba(0, r, g, b, 0.8)
+        gradient.add_color_stop_rgba(1, r, g, b, 0)
+        context.set_source(gradient)
+        context.arc(self.x, self.y, pulse_size * 1.2, 0, 2 * math.pi)
         context.fill()
         
+        # Draw a circle with gradient
+        gradient = cairo.RadialGradient(self.x, self.y, 0, self.x, self.y, pulse_size/2)
+        gradient.add_color_stop_rgba(0, 1, 1, 1, 1)  # White center
+        gradient.add_color_stop_rgba(1, r, g, b, 1)
+        context.set_source(gradient)
+        context.arc(self.x, self.y, pulse_size/2, 0, 2 * math.pi)
+        context.fill()
+        
+        # Draw border
+        context.set_line_width(2)
+        context.set_source_rgba(1, 1, 1, 0.7)
+        context.arc(self.x, self.y, pulse_size/2, 0, 2 * math.pi)
+        context.stroke()
+        
         # Draw the number
-        context.set_source_rgb(*self.color)
+        context.set_source_rgb(0.1, 0.1, 0.1)
         context.select_font_face("Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        context.set_font_size(self.size * 0.6)
+        context.set_font_size(pulse_size * 0.6)
         
         # Center the text
         text = str(self.value)
@@ -98,59 +156,94 @@ class NumberNinjaActivity(activity.Activity):
         css_provider = Gtk.CssProvider()
         css = """
         #number-ninja-window {
-            background-image: linear-gradient(135deg, #f8fafc 0%, #e3f0ff 100%);
+            background-image: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
             border-radius: 18px;
-            box-shadow: 0 6px 24px 0 rgba(60, 60, 120, 0.18);
+            box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.3);
             padding: 12px;
-            color: #000;
+            color: #ffffff;
         }
         .stat-frame {
             padding: 5px 0px 0px 0px;
             border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .stat-frame > * > * {
-            background: linear-gradient(90deg, #f9f9f9 60%, #e3f0ff 100%);
+            background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
             border-radius: 12px;
             padding: 8px 0 8px 0;
-            color: #000;
+            color: #ffffff;
+        }
+        .stat-title {
+            font-size: 14px;
+            font-weight: normal;
+            color: #81d4fa;
         }
         .stat-label {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            color: #000;
+            color: #ffffff;
         }
         .header-label {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             margin-bottom: 10px;
             font-family: 'Sans', serif;
-            color: #000;
+            color: #ffeb3b;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .rule-label {
             font-size: 16px;
             font-weight: bold;
-            color: #6a1b9a;
-            background: linear-gradient(90deg, #fff8e1 60%, #f3e5f5 100%);
-            padding: 8px 12px;
+            color: #ffffff;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+            padding: 10px 15px;
             border-radius: 10px;
-            border: 1px dashed #ba68c8;
-            box-shadow: 0 2px 8px rgba(186,104,200,0.08);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             margin-top: 5px;
             margin-bottom: 5px;
         }
+        .rule-frame, .result-frame {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+        }
         .success-text {
-            color: #00bb00;
+            color: #4caf50;
             font-weight: bold;
-            background-color: #eafff5;
-            padding: 8px;
+            background-color: rgba(76,175,80,0.2);
+            padding: 10px;
             border-radius: 8px;
         }
         .failure-text {
-            color: #ff0000;
+            color: #f44336;
             font-weight: bold;
-            background-color: #fff0f0;
-            padding: 8px;
+            background-color: rgba(244,67,54,0.2);
+            padding: 10px;
             border-radius: 8px;
+        }
+        button {
+            background: linear-gradient(45deg, #3949ab 0%, #5c6bc0 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 200ms ease;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #5c6bc0 0%, #7986cb 100%);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            margin-top: -2px;
+            margin-bottom: 2px;
+        }
+        combobox {
+            border-radius: 15px;
+            padding: 5px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
         }
         """
         css_provider.load_from_data(css.encode())
@@ -213,42 +306,65 @@ class NumberNinjaActivity(activity.Activity):
         # Use a fixed container for better positioning
         self.title_screen.set_size_request(-1, -1)  # Let it adjust to content
         
+        # Center all content
+        title_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        title_container.set_halign(Gtk.Align.CENTER)
+        title_container.set_valign(Gtk.Align.CENTER)
+        self.title_screen.pack_start(title_container, True, True, 0)
+        
         # Logo label
         logo_label = Gtk.Label()
-        logo_label.set_markup("<span weight='bold' foreground='#3E7D1C'>Number Ninja</span>")
+        logo_label.set_markup("<span weight='bold' size='xx-large'>Number Ninja</span>")
         logo_label.get_style_context().add_class("header-label")
-        self.title_screen.pack_start(logo_label, False, False, 10)
+        title_container.pack_start(logo_label, False, False, 20)
         
-        # Rule selector in a more compact layout
-        rule_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        rule_label = Gtk.Label(label=_("Select:"))
-        rule_box.pack_start(rule_label, False, False, 5)
+        # Rule selector frame
+        rule_frame = Gtk.Frame()
+        rule_frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
+        rule_frame.get_style_context().add_class("rule-frame")
+        rule_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        rule_box.set_margin_top(10)
+        rule_box.set_margin_bottom(10)
+        rule_box.set_margin_start(20)
+        rule_box.set_margin_end(20)
+        rule_frame.add(rule_box)
         
+        # Rule selector label
+        rule_title = Gtk.Label(label=_("Select Game Mode:"))
+        rule_title.set_halign(Gtk.Align.START)
+        rule_box.pack_start(rule_title, False, False, 0)
+        
+        # Combo box in its own container
+        combo_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self.rule_combo = Gtk.ComboBoxText()
         self.rule_combo.append_text(_("Even Numbers"))
         self.rule_combo.append_text(_("Prime Numbers"))
         self.rule_combo.append_text(_("Multiples of 3"))
         self.rule_combo.set_active(0)  # Default to even numbers
-        self.rule_combo.connect("changed", self._on_rule_changed)  # Connect signal
-        rule_box.pack_start(self.rule_combo, True, True, 0)
-        
-        self.title_screen.pack_start(rule_box, False, False, 5)
+        self.rule_combo.connect("changed", self._on_rule_changed)
+        combo_container.pack_start(self.rule_combo, True, True, 0)
+        rule_box.pack_start(combo_container, False, False, 5)
         
         # Instructions
         instructions = Gtk.Label()
         instructions.set_markup(_("<span>Click only on numbers that match the rule!</span>"))
-        self.title_screen.pack_start(instructions, False, False, 5)
+        rule_box.pack_start(instructions, False, False, 5)
         
         # Show rule label below selector
         self.rule_preview_label = Gtk.Label()
         self.rule_preview_label.get_style_context().add_class("rule-label")
-        self.title_screen.pack_start(self.rule_preview_label, False, False, 5)
+        rule_box.pack_start(self.rule_preview_label, False, False, 5)
         self._on_rule_changed(self.rule_combo)  # Set initial rule preview
         
-        # Start button
+        title_container.pack_start(rule_frame, False, False, 20)
+        
+        # Start button in its own container
+        button_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        button_container.set_halign(Gtk.Align.CENTER)
         start_button = Gtk.Button(label=_("Start Game"))
         start_button.connect("clicked", self._on_start_game)
-        self.title_screen.pack_start(start_button, False, False, 10)
+        button_container.pack_start(start_button, False, False, 0)
+        title_container.pack_start(button_container, False, False, 20)
 
     def _on_rule_changed(self, combo):
         rule_index = combo.get_active()
@@ -260,79 +376,130 @@ class NumberNinjaActivity(activity.Activity):
             self.rule_preview_label.set_markup("<span weight='bold'>Rule: Click on multiples of 3</span>")
 
     def _setup_game_screen(self):
-        # Top bar with frames for stats (more compact)
-        top_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        # Game screen container
+        game_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        game_container.set_margin_top(10)
+        game_container.set_margin_bottom(10)
+        game_container.set_margin_start(10)
+        game_container.set_margin_end(10)
+        self.game_screen.pack_start(game_container, True, True, 0)
+
+        # Top bar with frames for stats
+        top_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
         top_bar.set_hexpand(True)
         top_bar.set_vexpand(False)
         top_bar.set_homogeneous(True)
+        top_bar.set_margin_bottom(10)
 
         # Score
-        score_frame = Gtk.Frame(label="Score")
-        score_frame.set_label_align(0.5, 0.5)
+        score_frame = Gtk.Frame()
+        score_frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         score_frame.get_style_context().add_class("stat-frame")
+        score_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        score_label_text = Gtk.Label(label=_("Score"))
+        score_label_text.get_style_context().add_class("stat-title")
         self.score_label = Gtk.Label(label=_("0"))
         self.score_label.get_style_context().add_class("stat-label")
-        score_frame.add(self.score_label)
+        score_box.pack_start(score_label_text, False, False, 3)
+        score_box.pack_start(self.score_label, False, False, 3)
+        score_frame.add(score_box)
         top_bar.pack_start(score_frame, True, True, 0)
 
         # Timer
-        timer_frame = Gtk.Frame(label="Time")
-        timer_frame.set_label_align(0.5, 0.5)
+        timer_frame = Gtk.Frame()
+        timer_frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         timer_frame.get_style_context().add_class("stat-frame")
+        timer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        timer_label_text = Gtk.Label(label=_("Time"))
+        timer_label_text.get_style_context().add_class("stat-title")
         self.timer_label = Gtk.Label(label=_("60"))
         self.timer_label.get_style_context().add_class("stat-label")
-        timer_frame.add(self.timer_label)
+        timer_box.pack_start(timer_label_text, False, False, 3)
+        timer_box.pack_start(self.timer_label, False, False, 3)
+        timer_frame.add(timer_box)
         top_bar.pack_start(timer_frame, True, True, 0)
 
         # Health
-        health_frame = Gtk.Frame(label="Health")
-        health_frame.set_label_align(0.5, 0.5)
+        health_frame = Gtk.Frame()
+        health_frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         health_frame.get_style_context().add_class("stat-frame")
+        health_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        health_label_text = Gtk.Label(label=_("Health"))
+        health_label_text.get_style_context().add_class("stat-title")
         self.health_label = Gtk.Label(label=_("100%"))
         self.health_label.get_style_context().add_class("stat-label")
-        health_frame.add(self.health_label)
+        health_box.pack_start(health_label_text, False, False, 3)
+        health_box.pack_start(self.health_label, False, False, 3)
+        health_frame.add(health_box)
         top_bar.pack_start(health_frame, True, True, 0)
 
-        self.game_screen.pack_start(top_bar, False, False, 5)
+        game_container.pack_start(top_bar, False, False, 0)
         
-        # Game area (Drawing area)
+        # Game area (Drawing area) in a frame for better appearance
+        game_frame = Gtk.Frame()
+        game_frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         self.drawing_area = Gtk.DrawingArea()
-        # Let it adapt to available space instead of fixed size
         self.drawing_area.connect("draw", self._on_draw)
         self.drawing_area.set_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.drawing_area.connect("button-press-event", self._on_area_clicked)
         self.drawing_area.set_hexpand(True)
         self.drawing_area.set_vexpand(True)
+        game_frame.add(self.drawing_area)
         
-        self.game_screen.pack_start(self.drawing_area, True, True, 0)
+        game_container.pack_start(game_frame, True, True, 0)
         
         # Current rule display
         self.rule_label = Gtk.Label()
         self.rule_label.set_markup("<span weight='bold'>Rule: Click on even numbers</span>")
         self.rule_label.get_style_context().add_class("rule-label")
-        self.game_screen.pack_start(self.rule_label, False, False, 5)
+        game_container.pack_start(self.rule_label, False, False, 10)
         
     def _setup_end_screen(self):
+        # End game container - center everything
+        end_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        end_container.set_halign(Gtk.Align.CENTER)
+        end_container.set_valign(Gtk.Align.CENTER)
+        self.end_screen.pack_start(end_container, True, True, 0)
+        
         # End game title
         end_title = Gtk.Label()
-        end_title.set_markup("<span weight='bold'>Game Over!</span>")
+        end_title.set_markup("<span weight='bold' size='xx-large'>Game Over!</span>")
         end_title.get_style_context().add_class("header-label")
-        self.end_screen.pack_start(end_title, False, False, 10)
+        end_container.pack_start(end_title, False, False, 10)
+        
+        # Result frame
+        result_frame = Gtk.Frame()
+        result_frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
+        result_frame.get_style_context().add_class("result-frame")
+        result_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        result_box.set_margin_top(15)
+        result_box.set_margin_bottom(15)
+        result_box.set_margin_start(30)
+        result_box.set_margin_end(30)
         
         # Final score
         self.final_score_label = Gtk.Label()
-        self.final_score_label.set_markup("<span>Your score: 0</span>")
-        self.end_screen.pack_start(self.final_score_label, False, False, 5)
+        self.final_score_label.set_markup("<span size='large'>Your score: 0</span>")
+        result_box.pack_start(self.final_score_label, False, False, 5)
+        
+        result_frame.add(result_box)
+        end_container.pack_start(result_frame, False, False, 15)
+        
+        # Buttons container
+        buttons_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
+        buttons_box.set_halign(Gtk.Align.CENTER)
         
         # Play again button
         play_again_button = Gtk.Button(label=_("Play Again"))
         play_again_button.connect("clicked", self._on_play_again)
-        self.end_screen.pack_start(play_again_button, False, False, 5)
+        buttons_box.pack_start(play_again_button, False, False, 0)
         
         # Return to title button
         title_button = Gtk.Button(label=_("Return to Title"))
         title_button.connect("clicked", self._show_title_screen)
-        self.end_screen.pack_start(title_button, False, False, 5)
+        buttons_box.pack_start(title_button, False, False, 0)
+        
+        end_container.pack_start(buttons_box, False, False, 10)
         
     def _show_title_screen(self, widget=None):
         self.title_screen.show_all()
@@ -407,15 +574,21 @@ class NumberNinjaActivity(activity.Activity):
         width = widget.get_allocated_width()
         height = widget.get_allocated_height()
         
-        # Draw background image if loaded, else fallback to color
-        if self.bg_pixbuf:
-            # Scale image to fit the drawing area
-            scaled = self.bg_pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-            Gdk.cairo_set_source_pixbuf(context, scaled, 0, 0)
-            context.paint()
-        else:
-            context.set_source_rgb(0.9, 0.9, 1.0)  # Light blue background
-            context.rectangle(0, 0, width, height)
+        # Draw background - enhanced gradient background
+        pattern = cairo.LinearGradient(0, 0, width, height)
+        pattern.add_color_stop_rgba(0, 0.1, 0.1, 0.2, 1)  # Dark blue
+        pattern.add_color_stop_rgba(1, 0.2, 0.2, 0.4, 1)  # Light blue
+        context.set_source(pattern)
+        context.rectangle(0, 0, width, height)
+        context.fill()
+        
+        # Draw background patterns (optional)
+        context.set_source_rgba(1, 1, 1, 0.03)  # Very subtle white
+        for i in range(20):
+            x = random.randint(0, width)
+            y = random.randint(0, height)
+            size = random.randint(3, 15)
+            context.arc(x, y, size, 0, 2 * math.pi)
             context.fill()
         
         # Draw all numbers
@@ -511,7 +684,7 @@ class NumberNinjaActivity(activity.Activity):
             return False
             
         self.game_time -= 1
-        self.timer_label.set_text(_("Time: {}").format(self.game_time))
+        self.timer_label.set_text(str(self.game_time))
         
         if self.game_time <= 0:
             self._end_game()
