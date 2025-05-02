@@ -251,7 +251,29 @@ class MathGamesActivity(activity.Activity):
             subprocess.Popen(["python3", script_path])
     
     def launch_random_game(self, button):
-        _, path = random.choice(self.buttons)
+        """Launch a random game from the available games."""
+        # Ensure we have games to choose from
+        if not self.buttons:
+            print("Error: No games available to choose from!")
+            return
+        
+        # Keep track of the last selected game to avoid repeating
+        if not hasattr(self, 'last_random_game'):
+            self.last_random_game = None
+        
+        # If we have more than one game and a last game, try to avoid repetition
+        if len(self.buttons) > 1 and self.last_random_game is not None:
+            # Filter out the last selected game
+            available_choices = [(box, path) for box, path in self.buttons if path != self.last_random_game]
+            _, path = random.choice(available_choices)
+        else:
+            # Simple random choice if we only have one game or no last game
+            _, path = random.choice(self.buttons)
+        
+        # Update the last selected game
+        self.last_random_game = path
+        
+        # Launch the selected game
         self.launch_game(button, path)
     
     def __quit_cb(self, button):
