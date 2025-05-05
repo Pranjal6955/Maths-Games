@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Math Challenges - A Sugar Activity
+Odd Scoring - A Sugar Activity
 A game with two modes: Sum to Target and Countdown to Zero
 """
 
@@ -30,12 +30,12 @@ class OddScoringActivity(activity.Activity):
             # Standalone initialization (without Sugar)
             Gtk.Window.__init__(self)
             self.set_default_size(800, 600)
-            self.set_title("Math Challenges")
+            self.set_title("Odd Scoring")
             self.connect("delete-event", Gtk.main_quit)
         else:
             # Initialize as Sugar activity
             activity.Activity.__init__(self, handle)
-            self.set_title("Math Challenges")
+            self.set_title("Odd Scoring")
         
         # Apply CSS styling
         self._apply_css()
@@ -69,7 +69,7 @@ class OddScoringActivity(activity.Activity):
             # Main container
             self.main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
             self.main_box.set_border_width(10)
-            self.main_box.set_name("math-challenges-window")
+            self.main_box.set_name("odd-scoring-window")
             self.set_canvas(self.main_box)
         
         # Game variables
@@ -282,7 +282,7 @@ class OddScoringActivity(activity.Activity):
         
         # Title label
         title_label = Gtk.Label()
-        title_label.set_markup("<span size='xx-large' weight='bold'>Math Challenges</span>")
+        title_label.set_markup("<span size='xx-large' weight='bold'>Odd Scoring</span>")
         title_label.get_style_context().add_class("header-label")
         title_label.set_margin_top(30)
         title_label.set_margin_bottom(20)
