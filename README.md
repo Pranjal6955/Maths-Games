@@ -38,12 +38,12 @@ A collection of fun and educational math games for kids, designed for the Sugar 
 
 Watch our games in action:
 
-- [**Watch the Overview Video**](https://example.com/maths-games-overview) - A quick tour of all games
+- [**Watch the Overview Video**]
 
-Embed in your classroom materials:
-```html
-<iframe width="560" height="315" src="https://www.youtube.com/embed/DEMO_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
-```
+https://github.com/user-attachments/assets/33c6f019-4212-4d43-9c07-2048aba7b91b
+
+  A quick tour of all games
+
 
 ## Features
 
